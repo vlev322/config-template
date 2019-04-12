@@ -13,13 +13,13 @@ const loaders = {
 	}
 }
 
-module.exports = function(env) {
+module.exports = function (env) {
 	return {
 		mode: env.ENVIRONMENT,
 		target: 'web',
 		context: `${__dirname}/src/ts/`,
 		devtool: "inline-source-map",
-		entry:[
+		entry: [
 			path.join(__dirname, 'src', 'ts', 'index.ts'),
 			path.join(__dirname, 'src', 'style', 'main.sass')
 		],
@@ -27,6 +27,9 @@ module.exports = function(env) {
 			path: path.resolve(__dirname, "public"),
 			filename: "main.min.js",
 			publicPath: "/"
+		},
+		resolve: {
+			extensions: ['.ts', '.tsx', '.js', '.json']
 		},
 		module: {
 			rules: [loaders.ts, loaders.sass]
