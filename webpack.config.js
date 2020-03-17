@@ -1,43 +1,61 @@
-const path = require('path');
+const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const TerserJSPlugin = require("terser-webpack-plugin");
 
 const loaders = {
 	ts: {
 		test: /\.(ts|tsx|jsx)$/,
 		use: ["babel-loader", "ts-loader"]
 	},
-	sass: {
-		test: /\.sass$/,
-		use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
-	}
-}
+	styl: env => ({
+		test: /\.styl$/,
+		use: [
+			{
+				loader: MiniCssExtractPlugin.loader,
+				options: {
+					publicPath: "../",
+					hmr: env === "development"
+				}
+			},
+			"css-loader",
+			"stylus-loader"
+		]
+	})
+};
 
-module.exports = function (env) {
+const entries = {
+	ts: path.join(__dirname, "src", "ts", "index.ts"),
+	styl: path.join(__dirname, "src", "style", "stylesheets", "main.styl")
+};
+
+module.exports = function(env) {
 	return {
 		mode: env.ENVIRONMENT,
-		target: 'web',
+		target: "web",
 		context: `${__dirname}/src/ts/`,
 		devtool: "inline-source-map",
-		entry: [
-			path.join(__dirname, 'src', 'ts', 'index.ts'),
-			path.join(__dirname, 'src', 'style', 'main.sass')
-		],
+		entry: [entries.ts, entries.styl],
 		output: {
-			path: path.resolve(__dirname, "public"),
-			filename: "main.min.js",
+			path: path.resolve(__dirname, "build"),
+			filename: "bundle.min.js",
 			publicPath: "/"
 		},
 		resolve: {
-			extensions: ['.ts', '.tsx', '.js', '.json']
+			extensions: [".ts", ".tsx", ".js", ".json"]
+		},
+		optimization: {
+			minimizer: [new TerserJSPlugin({})]
 		},
 		module: {
-			rules: [loaders.ts, loaders.sass]
+			rules: [loaders.ts, loaders.styl(env.ENVIRONMENT)]
 		},
 		devServer: {
-			port: 9000,
-			contentBase: path.join(__dirname, "/"),
 			hot: true,
+			inline: true,
+			compress: true,
+			port: 9000,
+			contentBase: path.join(__dirname, "/build"),
 			historyApiFallback: true
 		},
 		plugins: [
@@ -48,5 +66,5 @@ module.exports = function (env) {
 				filename: "style/style.min.css"
 			})
 		]
-	}
-}
+	};
+};
