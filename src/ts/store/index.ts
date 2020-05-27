@@ -9,7 +9,7 @@ import rootSaga from "./sagas";
 export function configureStore() {
 	const sagaMiddleware = createSagaMiddleware();
 	return {
-		...createStore(rootReducer, composeWithDevTools(applyMiddleware(sagaMiddleware))),
+		...createStore(rootReducer, composeWithDevTools(applyMiddleware(sagaMiddleware),)),
 		runSaga: sagaMiddleware.run
 	};
 }
